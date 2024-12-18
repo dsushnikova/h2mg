@@ -14,4 +14,5 @@ To ensure compatibility and avoid dependency issues, it is recommended to create
 
 ```bash
 conda create --name h2mg python=3.11 numpy scipy matplotlib numba jupyter -c conda-forge -y
-conda activate h2mg'''
+conda activate h2mg
+```
