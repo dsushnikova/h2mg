@@ -282,3 +282,31 @@ def comp_sph(data1, list1, data2, list2):
     ans = np.ndarray((list1.size, list2.size))
     return comp_sph_numba(data1.ndim, data1.vertex, list1, data2.vertex,
             list2, ans)
+
+def laplace_single_layer(data1, list1, data2, list2):
+    ans = np.empty((list1.size, list2.size), dtype=np.float64)
+    return laplace_single_layer_numba(
+        data1.ndim,
+        data1.centroids, list1,
+        data2.centroids, list2,
+        data2.areas,
+        data1.tri_rad,
+        ans
+    )
+
+@jit(nopython=True)
+def laplace_single_layer_numba(ndim, centroids1, list1, centroids2, list2, weights, R, ans):
+    n = list1.size
+    m = list2.size
+    for i in range(n):
+        for j in range(m):
+            tmp_l = 0.0
+            for k in range(ndim):
+                tmp_v = centroids1[list1[i], k] - centroids2[list2[j], k]
+                tmp_l += tmp_v * tmp_v
+            if tmp_l <= 1e-10:
+                ans[i, j] = weights[j] / (4 * math.pi * R)   # small r for diagonal
+            else:
+                r = math.sqrt(tmp_l)
+                ans[i, j] = weights[j] / (4 * math.pi * r)
+    return ans
